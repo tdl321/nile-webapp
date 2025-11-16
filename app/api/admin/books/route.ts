@@ -35,37 +35,55 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'title'
     const order = searchParams.get('order') || 'asc'
 
-    // Query books with pending request counts using raw SQL for aggregation
-    const { data: books, error } = await supabase.rpc('get_books_with_request_counts', {
-      search_term: search || ''
-    })
+    // Fetch all books
+    let query = supabase
+      .from('books')
+      .select('isbn, title, authors, publisher, thumbnail_url, quantity_available')
 
-    if (error) {
-      console.error('Error fetching books:', error)
-
-      // Fallback: fetch books without aggregation if RPC doesn't exist
-      const { data: fallbackBooks, error: fallbackError } = await supabase
-        .from('books')
-        .select('isbn, title, authors, publisher, thumbnail_url, quantity_available')
-        .order(sort as any, { ascending: order === 'asc' })
-
-      if (fallbackError) {
-        return NextResponse.json(
-          { error: 'Failed to fetch books' },
-          { status: 500 }
-        )
-      }
-
-      // Add pending_requests_count as 0 for fallback
-      const formattedFallback = fallbackBooks.map(book => ({
-        ...book,
-        pending_requests_count: 0
-      }))
-
-      return NextResponse.json(formattedFallback)
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,isbn.ilike.%${search}%`)
     }
 
-    return NextResponse.json(books)
+    const { data: books, error: booksError } = await query.order(sort as any, { ascending: order === 'asc' })
+
+    if (booksError) {
+      console.error('Error fetching books:', booksError)
+      return NextResponse.json(
+        { error: 'Failed to fetch books' },
+        { status: 500 }
+      )
+    }
+
+    // Fetch all pending requests
+    const { data: requests, error: requestsError } = await supabase
+      .from('professor_requests')
+      .select('id, professor_email, isbn, quantity_requested, requested_at')
+      .eq('status', 'pending')
+
+    if (requestsError) {
+      console.error('Error fetching requests:', requestsError)
+      return NextResponse.json(
+        { error: 'Failed to fetch requests' },
+        { status: 500 }
+      )
+    }
+
+    // Group requests by ISBN and attach to books
+    const requestsByIsbn = requests.reduce((acc: any, request) => {
+      if (!acc[request.isbn]) {
+        acc[request.isbn] = []
+      }
+      acc[request.isbn].push(request)
+      return acc
+    }, {})
+
+    const booksWithRequests = books.map(book => ({
+      ...book,
+      pending_requests_count: requestsByIsbn[book.isbn]?.length || 0,
+      requests: requestsByIsbn[book.isbn] || []
+    }))
+
+    return NextResponse.json(booksWithRequests)
 
   } catch (error) {
     console.error('Unexpected error fetching admin books:', error)
