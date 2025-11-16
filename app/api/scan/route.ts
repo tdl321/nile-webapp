@@ -110,18 +110,26 @@ export async function POST(request: NextRequest) {
       bookData = newBook
     } else {
       // Step 4: Update existing book stats and increment quantity
+      const updatedData = {
+        last_scanned_at: new Date().toISOString(),
+        scan_count: (existingBook.scan_count || 0) + 1,
+        quantity_available: (existingBook.quantity_available || 0) + 1, // Increment inventory by 1
+      }
+
       const { error: updateError } = await supabase
         .from('books')
-        .update({
-          last_scanned_at: new Date().toISOString(),
-          scan_count: (existingBook.scan_count || 0) + 1,
-          quantity_available: (existingBook.quantity_available || 0) + 1, // Increment inventory by 1
-        })
+        .update(updatedData)
         .eq('isbn', normalizedISBN)
 
       if (updateError) {
         console.error('Error updating book stats:', updateError)
         // Non-fatal error, continue
+      }
+
+      // Update bookData with the new values for the response
+      bookData = {
+        ...existingBook,
+        ...updatedData,
       }
     }
 
