@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(
   request: NextRequest,
@@ -89,22 +89,32 @@ export async function POST(
       )
     }
 
-    // Reduce book inventory
-    const { error: inventoryError } = await supabase
+    // Reduce book inventory - use service role client to bypass RLS
+    const newQuantity = quantityAvailable - requestData.quantity_requested
+    console.log(`[INVENTORY UPDATE] ISBN: ${requestData.isbn}`)
+    console.log(`[INVENTORY UPDATE] Current quantity: ${quantityAvailable}`)
+    console.log(`[INVENTORY UPDATE] Requested quantity: ${requestData.quantity_requested}`)
+    console.log(`[INVENTORY UPDATE] New quantity: ${newQuantity}`)
+
+    const serviceClient = await createServiceRoleClient()
+    const { data: updateData, error: inventoryError } = await serviceClient
       .from('books')
       .update({
-        quantity_available: quantityAvailable - requestData.quantity_requested
+        quantity_available: newQuantity
       })
       .eq('isbn', requestData.isbn)
+      .select()
 
     if (inventoryError) {
-      console.error('Error updating inventory:', inventoryError)
+      console.error('[INVENTORY UPDATE] Error updating inventory:', inventoryError)
       // Note: In a production system, this should be wrapped in a transaction
       return NextResponse.json(
         { error: 'Failed to update inventory' },
         { status: 500 }
       )
     }
+
+    console.log('[INVENTORY UPDATE] Update result:', updateData)
 
     return NextResponse.json({
       success: true,
