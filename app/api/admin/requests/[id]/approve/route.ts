@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -32,7 +32,7 @@ export async function POST(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Get the request details
     const { data: requestData, error: fetchError } = await supabase
@@ -57,7 +57,7 @@ export async function POST(
     }
 
     // Check if enough books are available
-    const quantityAvailable = requestData.books?.quantity_available || 0
+    const quantityAvailable = (requestData.books as any)?.quantity_available || 0
     if (quantityAvailable < requestData.quantity_requested) {
       return NextResponse.json(
         { error: `Insufficient inventory. Only ${quantityAvailable} available.` },

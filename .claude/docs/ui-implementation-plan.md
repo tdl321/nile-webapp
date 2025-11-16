@@ -1009,6 +1009,15 @@ export function RequestActionDialog({
 
 ### Color Scheme
 
+**Brand Color Palette:**
+```css
+/* Primary brand colors */
+--brand-primary: #D6A99D      /* rgb(214, 169, 157) - Dusty Rose */
+--brand-secondary: #FBF3D5    /* rgb(251, 243, 213) - Cream */
+--brand-tertiary: #D6DAC8     /* rgb(214, 218, 200) - Sage */
+--brand-accent: #9CAFAA       /* rgb(156, 175, 170) - Muted Teal */
+```
+
 Using shadcn's default theme with customizations:
 
 ```css
