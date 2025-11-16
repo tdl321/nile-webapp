@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { InventoryTable } from '@/components/admin/inventory-table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Logo } from '@/components/ui/logo'
 
 export default function AdminDashboardPage() {
   const { user, signOut } = useAuth()
@@ -48,8 +49,8 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Nile - Admin Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <Logo size="md" variant="icon" className="h-8" />
           </div>
           <div className="flex items-center gap-4">
             <Badge variant="default">Admin</Badge>

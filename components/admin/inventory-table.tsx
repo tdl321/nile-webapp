@@ -64,7 +64,7 @@ export function InventoryTable({ books, onRefresh }: InventoryTableProps) {
     } else if (quantity <= 4) {
       return <Badge variant="secondary">Low Stock ({quantity})</Badge>
     }
-    return <Badge variant="default" className="bg-green-600">{quantity} Available</Badge>
+    return <Badge className="bg-success text-success-foreground">{quantity} Available</Badge>
   }
 
   return (
@@ -134,7 +134,7 @@ export function InventoryTable({ books, onRefresh }: InventoryTableProps) {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
-                              variant="default"
+                              className="bg-success text-success-foreground hover:bg-success/90 shadow-sm shadow-black/5"
                               onClick={() => handleAction(request, book, 'approve')}
                             >
                               Approve

@@ -46,11 +46,11 @@ export function RequestHistoryTable() {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>
       case 'approved':
-        return <Badge variant="default" className="bg-green-600">Approved</Badge>
+        return <Badge className="bg-success text-success-foreground">Approved</Badge>
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>
       case 'partial':
-        return <Badge variant="default" className="bg-blue-600">Partial</Badge>
+        return <Badge className="bg-info text-info-foreground">Partial</Badge>
       default:
         return <Badge>{status}</Badge>
     }

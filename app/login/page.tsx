@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Logo } from '@/components/ui/logo'
 
 export default function LoginPage() {
   const supabase = createClient()
@@ -27,10 +28,10 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-950 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Welcome to Nile
-          </CardTitle>
+        <CardHeader className="space-y-4 text-center">
+          <div className="flex justify-center">
+            <Logo size="xl" variant="icon" className="h-16" />
+          </div>
           <CardDescription>
             Sign in with your Google account to continue
           </CardDescription>
