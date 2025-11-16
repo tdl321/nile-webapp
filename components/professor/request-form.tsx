@@ -271,54 +271,47 @@ export function RequestForm() {
               </TabsContent>
 
               <TabsContent value="manual" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="isbn"
-                  rules={{
-                    required: inputMode === 'manual' ? 'ISBN is required' : false,
-                    pattern: inputMode === 'manual' ? {
-                      value: /^(?:\d{10}|\d{13})$/,
-                      message: 'ISBN must be 10 or 13 digits'
-                    } : undefined
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ISBN Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter 10 or 13 digit ISBN..."
-                          maxLength={13}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <p className="text-xs text-muted-foreground">
-                        Enter the ISBN for a book not yet in our system
-                      </p>
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    ISBN Number
+                  </label>
+                  <Input
+                    value={form.watch('isbn')}
+                    onChange={(e) => form.setValue('isbn', e.target.value, { shouldValidate: true })}
+                    placeholder="Enter 10 or 13 digit ISBN..."
+                    maxLength={13}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter the ISBN for a book not yet in our system
+                  </p>
+                </div>
               </TabsContent>
             </Tabs>
 
-            {/* Hidden ISBN field for search mode */}
-            {inputMode === 'search' && (
-              <FormField
-                control={form.control}
-                name="isbn"
-                rules={{
-                  required: 'Please select a book from the search results'
-                }}
-                render={({ field }) => (
-                  <FormItem className="hidden">
-                    <FormControl>
-                      <Input {...field} type="hidden" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            {/* ISBN field - single registration with conditional validation */}
+            <FormField
+              control={form.control}
+              name="isbn"
+              rules={
+                inputMode === 'search'
+                  ? { required: 'Please select a book from the search results' }
+                  : {
+                      required: 'ISBN is required',
+                      pattern: {
+                        value: /^(?:\d{10}|\d{13})$/,
+                        message: 'ISBN must be 10 or 13 digits'
+                      }
+                    }
+              }
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input {...field} type="hidden" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
