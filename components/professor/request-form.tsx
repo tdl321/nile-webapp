@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
+import { Search, Book } from 'lucide-react'
 
 interface BookData {
   isbn: string
   title: string
+  subtitle?: string
   authors: string[]
   publisher: string
   thumbnail_url: string
@@ -21,8 +23,12 @@ interface BookData {
 
 export function RequestForm() {
   const [bookData, setBookData] = useState<BookData | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<BookData[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
   const [loading, setLoading] = useState(false)
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const form = useForm({
     defaultValues: {
@@ -33,45 +39,73 @@ export function RequestForm() {
     }
   })
 
-  const fetchBookData = async (isbn: string) => {
-    if (isbn.length >= 10) {
+  const searchBooks = async (query: string) => {
+    if (query.length >= 2) {
       setLoading(true)
       try {
-        const response = await fetch(`/api/books/${isbn}`)
+        const response = await fetch(`/api/books/search?q=${encodeURIComponent(query)}`)
         if (response.ok) {
           const data = await response.json()
-          setBookData(data)
+          setSearchResults(data.results || [])
+          setShowDropdown(true)
         } else {
-          setBookData(null)
-          if (isbn.length >= 13) { // Only show error for complete ISBNs
-            toast.error('Book not found')
-          }
+          setSearchResults([])
+          setShowDropdown(false)
         }
       } catch (error) {
-        setBookData(null)
-        toast.error('Failed to fetch book data')
+        setSearchResults([])
+        toast.error('Failed to search books')
       } finally {
         setLoading(false)
       }
     } else {
-      setBookData(null)
+      setSearchResults([])
+      setShowDropdown(false)
     }
   }
 
-  const handleIsbnChange = (isbn: string) => {
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+
     // Clear previous timer
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)
     }
 
-    // Reset book data immediately
+    // Reset selections
     setBookData(null)
+    form.setValue('isbn', '')
 
     // Debounce the API call
-    debounceTimer.current = setTimeout(() => {
-      fetchBookData(isbn)
-    }, 500) // Wait 500ms after user stops typing
+    if (query.length >= 2) {
+      debounceTimer.current = setTimeout(() => {
+        searchBooks(query)
+      }, 300) // Wait 300ms after user stops typing
+    } else {
+      setSearchResults([])
+      setShowDropdown(false)
+    }
   }
+
+  const selectBook = (book: BookData) => {
+    setBookData(book)
+    setSearchQuery(book.title)
+    form.setValue('isbn', book.isbn)
+    setShowDropdown(false)
+    setSearchResults([])
+  }
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -99,6 +133,9 @@ export function RequestForm() {
         toast.success('Request submitted successfully!')
         form.reset()
         setBookData(null)
+        setSearchQuery('')
+        setSearchResults([])
+        setShowDropdown(false)
       } else {
         const error = await response.json()
         toast.error(error.message || 'Failed to submit request')
@@ -122,25 +159,84 @@ export function RequestForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Search Input with Autocomplete */}
+            <div className="space-y-2" ref={dropdownRef}>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Search for a Book
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="Search by title, author, or ISBN..."
+                  className="pl-9"
+                />
+
+                {/* Dropdown Results */}
+                {showDropdown && searchResults.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-80 overflow-y-auto">
+                    {searchResults.map((book) => (
+                      <button
+                        key={book.isbn}
+                        type="button"
+                        onClick={() => selectBook(book)}
+                        className="w-full p-3 hover:bg-accent text-left border-b last:border-b-0 transition-colors"
+                      >
+                        <div className="flex gap-3">
+                          {book.thumbnail_url && (
+                            <img
+                              src={book.thumbnail_url}
+                              alt={book.title}
+                              className="w-12 h-16 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">{book.title}</div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {book.authors.join(', ')}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              ISBN: {book.isbn}
+                            </div>
+                            <div className="mt-1">
+                              <Badge variant={getStockBadgeVariant(book.quantity_available)} className="text-xs">
+                                {book.quantity_available > 0
+                                  ? `${book.quantity_available} available`
+                                  : 'Out of stock'}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* No Results Message */}
+                {showDropdown && searchResults.length === 0 && !loading && searchQuery.length >= 2 && (
+                  <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md p-4 text-center text-sm text-muted-foreground">
+                    <Book className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    No books found matching "{searchQuery}"
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Type at least 2 characters to search
+              </p>
+            </div>
+
+            {/* Hidden ISBN field for form submission */}
             <FormField
               control={form.control}
               name="isbn"
               rules={{
-                required: 'ISBN is required',
-                minLength: { value: 10, message: 'ISBN must be at least 10 characters' }
+                required: 'Please select a book from the search results'
               }}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ISBN Number</FormLabel>
+                <FormItem className="hidden">
                   <FormControl>
-                    <Input
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        handleIsbnChange(e.target.value)
-                      }}
-                      placeholder="9780140328721"
-                    />
+                    <Input {...field} type="hidden" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
