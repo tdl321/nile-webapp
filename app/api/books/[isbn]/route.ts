@@ -3,11 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { isbn: string } }
+  { params }: { params: Promise<{ isbn: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const { isbn } = params
+    const { isbn } = await params
 
     // Validate ISBN format (basic validation)
     if (!isbn || isbn.length < 10) {
