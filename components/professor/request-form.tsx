@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
@@ -22,6 +22,8 @@ interface BookData {
 export function RequestForm() {
   const [bookData, setBookData] = useState<BookData | null>(null)
   const [loading, setLoading] = useState(false)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+
   const form = useForm({
     defaultValues: {
       isbn: '',
@@ -31,7 +33,7 @@ export function RequestForm() {
     }
   })
 
-  const handleIsbnChange = async (isbn: string) => {
+  const fetchBookData = async (isbn: string) => {
     if (isbn.length >= 10) {
       setLoading(true)
       try {
@@ -41,7 +43,9 @@ export function RequestForm() {
           setBookData(data)
         } else {
           setBookData(null)
-          toast.error('Book not found')
+          if (isbn.length >= 13) { // Only show error for complete ISBNs
+            toast.error('Book not found')
+          }
         }
       } catch (error) {
         setBookData(null)
@@ -53,6 +57,30 @@ export function RequestForm() {
       setBookData(null)
     }
   }
+
+  const handleIsbnChange = (isbn: string) => {
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // Reset book data immediately
+    setBookData(null)
+
+    // Debounce the API call
+    debounceTimer.current = setTimeout(() => {
+      fetchBookData(isbn)
+    }, 500) // Wait 500ms after user stops typing
+  }
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [])
 
   const onSubmit = async (data: any) => {
     try {
