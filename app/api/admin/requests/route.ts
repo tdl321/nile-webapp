@@ -81,23 +81,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Format the response
-    const formattedRequests = requests.map(req => ({
-      id: req.id,
-      professor_id: req.professor_id,
-      professor_email: req.professor_email,
-      isbn: req.isbn,
-      book_title: req.books?.title || 'Unknown Book',
-      book_authors: req.books?.authors || [],
-      book_thumbnail: req.books?.thumbnail_url,
-      quantity_requested: req.quantity_requested,
-      quantity_approved: req.quantity_approved,
-      quantity_available: req.books?.quantity_available || 0,
-      status: req.status,
-      rejection_reason: req.rejection_reason,
-      requested_at: req.requested_at,
-      processed_at: req.processed_at,
-      processed_by: req.processed_by
-    }))
+    const formattedRequests = requests.map(req => {
+      const bookData = Array.isArray(req.books) ? req.books[0] : req.books
+      return {
+        id: req.id,
+        professor_id: req.professor_id,
+        professor_email: req.professor_email,
+        isbn: req.isbn,
+        book_title: bookData?.title || 'Unknown Book',
+        book_authors: bookData?.authors || [],
+        book_thumbnail: bookData?.thumbnail_url,
+        quantity_requested: req.quantity_requested,
+        quantity_approved: req.quantity_approved,
+        quantity_available: bookData?.quantity_available || 0,
+        status: req.status,
+        rejection_reason: req.rejection_reason,
+        requested_at: req.requested_at,
+        processed_at: req.processed_at,
+        processed_by: req.processed_by
+      }
+    })
 
     return NextResponse.json(formattedRequests)
 

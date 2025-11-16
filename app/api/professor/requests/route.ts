@@ -47,21 +47,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Format the response
-    const formattedRequests = requests.map(req => ({
-      id: req.id,
-      isbn: req.isbn,
-      book_title: req.books?.title || 'Unknown Book',
-      book_authors: req.books?.authors || [],
-      book_thumbnail: req.books?.thumbnail_url,
-      quantity_requested: req.quantity_requested,
-      quantity_approved: req.quantity_approved,
-      status: req.status,
-      rejection_reason: req.rejection_reason,
-      requested_at: req.requested_at,
-      processed_at: req.processed_at,
-      course_code: req.course_code,
-      course_name: req.course_name
-    }))
+    const formattedRequests = requests.map(req => {
+      const bookData = Array.isArray(req.books) ? req.books[0] : req.books
+      return {
+        id: req.id,
+        isbn: req.isbn,
+        book_title: bookData?.title || 'Unknown Book',
+        book_authors: bookData?.authors || [],
+        book_thumbnail: bookData?.thumbnail_url,
+        quantity_requested: req.quantity_requested,
+        quantity_approved: req.quantity_approved,
+        status: req.status,
+        rejection_reason: req.rejection_reason,
+        requested_at: req.requested_at,
+        processed_at: req.processed_at,
+        course_code: req.course_code,
+        course_name: req.course_name
+      }
+    })
 
     return NextResponse.json(formattedRequests)
 

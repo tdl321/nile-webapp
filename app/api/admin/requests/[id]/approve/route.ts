@@ -56,8 +56,13 @@ export async function POST(
       )
     }
 
+    // Extract book data (Supabase returns it as an object, not array)
+    const bookData = Array.isArray(requestData.books)
+      ? requestData.books[0]
+      : requestData.books as any
+
     // Check if enough books are available
-    const quantityAvailable = (requestData.books as any)?.quantity_available || 0
+    const quantityAvailable = bookData?.quantity_available || 0
     if (quantityAvailable < requestData.quantity_requested) {
       return NextResponse.json(
         { error: `Insufficient inventory. Only ${quantityAvailable} available.` },
@@ -103,7 +108,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Request approved for "${requestData.books?.title}"`
+      message: `Request approved for "${bookData?.title || 'book'}"`
     })
 
   } catch (error) {

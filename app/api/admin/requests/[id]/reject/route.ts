@@ -60,6 +60,9 @@ export async function POST(
       )
     }
 
+    // Extract book data
+    const bookData = Array.isArray(requestData.books) ? requestData.books[0] : requestData.books
+
     // Update request to rejected
     const { error: updateError } = await supabase
       .from('professor_requests')
@@ -81,7 +84,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Request rejected for "${requestData.books?.title}"`
+      message: `Request rejected for "${bookData?.title}"`
     })
 
   } catch (error) {

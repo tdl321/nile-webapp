@@ -77,7 +77,8 @@ export async function POST(
     }
 
     // Check if enough books are available
-    const quantityAvailable = requestData.books?.quantity_available || 0
+    const bookData = Array.isArray(requestData.books) ? requestData.books[0] : requestData.books
+    const quantityAvailable = bookData?.quantity_available || 0
     if (quantityAvailable < quantity_approved) {
       return NextResponse.json(
         { error: `Insufficient inventory. Only ${quantityAvailable} available.` },
@@ -123,7 +124,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Partially approved ${quantity_approved} of ${requestData.quantity_requested} for "${requestData.books?.title}"`
+      message: `Partially approved ${quantity_approved} of ${requestData.quantity_requested} for "${bookData?.title}"`
     })
 
   } catch (error) {
