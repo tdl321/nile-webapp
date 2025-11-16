@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
-import { Search, Book } from 'lucide-react'
+import { Search, Book, Plus } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface BookData {
   isbn: string
@@ -27,6 +28,7 @@ export function RequestForm() {
   const [searchResults, setSearchResults] = useState<BookData[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [inputMode, setInputMode] = useState<'search' | 'manual'>('search')
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -159,109 +161,163 @@ export function RequestForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Search Input with Autocomplete */}
-            <div className="space-y-2" ref={dropdownRef}>
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Search for a Book
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Search by title, author, or ISBN..."
-                  className="pl-9"
-                />
+            <Tabs defaultValue="search" onValueChange={(v) => {
+              setInputMode(v as 'search' | 'manual')
+              // Reset when switching modes
+              setBookData(null)
+              setSearchQuery('')
+              form.setValue('isbn', '')
+            }}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="search">
+                  <Search className="h-4 w-4 mr-2" />
+                  Search Books
+                </TabsTrigger>
+                <TabsTrigger value="manual">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Manual ISBN
+                </TabsTrigger>
+              </TabsList>
 
-                {/* Dropdown Results */}
-                {showDropdown && searchResults.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-80 overflow-y-auto">
-                    {searchResults.map((book) => (
-                      <button
-                        key={book.isbn}
-                        type="button"
-                        onClick={() => selectBook(book)}
-                        className="w-full p-3 hover:bg-accent text-left border-b last:border-b-0 transition-colors"
-                      >
-                        <div className="flex gap-3">
-                          {book.thumbnail_url && (
-                            <img
-                              src={book.thumbnail_url}
-                              alt={book.title}
-                              className="w-12 h-16 object-cover rounded"
-                            />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm truncate">{book.title}</div>
-                            <div className="text-xs text-muted-foreground truncate">
-                              {book.authors.join(', ')}
+              <TabsContent value="search" className="space-y-4">
+                {/* Search Input with Autocomplete */}
+                <div className="space-y-2" ref={dropdownRef}>
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Search for a Book
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      placeholder="Search by title, author, or ISBN..."
+                      className="pl-9"
+                    />
+
+                    {/* Dropdown Results */}
+                    {showDropdown && searchResults.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-80 overflow-y-auto">
+                        {searchResults.map((book) => (
+                          <button
+                            key={book.isbn}
+                            type="button"
+                            onClick={() => selectBook(book)}
+                            className="w-full p-3 hover:bg-accent text-left border-b last:border-b-0 transition-colors"
+                          >
+                            <div className="flex gap-3">
+                              {book.thumbnail_url && (
+                                <img
+                                  src={book.thumbnail_url}
+                                  alt={book.title}
+                                  className="w-12 h-16 object-cover rounded"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">{book.title}</div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {book.authors.join(', ')}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  ISBN: {book.isbn}
+                                </div>
+                                <div className="mt-1">
+                                  <Badge variant={getStockBadgeVariant(book.quantity_available)} className="text-xs">
+                                    {book.quantity_available > 0
+                                      ? `${book.quantity_available} available`
+                                      : 'Out of stock'}
+                                  </Badge>
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              ISBN: {book.isbn}
-                            </div>
-                            <div className="mt-1">
-                              <Badge variant={getStockBadgeVariant(book.quantity_available)} className="text-xs">
-                                {book.quantity_available > 0
-                                  ? `${book.quantity_available} available`
-                                  : 'Out of stock'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* No Results Message */}
+                    {showDropdown && searchResults.length === 0 && !loading && searchQuery.length >= 2 && (
+                      <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md p-4 text-center text-sm text-muted-foreground">
+                        <Book className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No books found matching &quot;{searchQuery}&quot;</p>
+                        <p className="text-xs mt-1">Try using the Manual ISBN tab to request this book</p>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {/* No Results Message */}
-                {showDropdown && searchResults.length === 0 && !loading && searchQuery.length >= 2 && (
-                  <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md p-4 text-center text-sm text-muted-foreground">
-                    <Book className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    No books found matching "{searchQuery}"
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Type at least 2 characters to search
-              </p>
-            </div>
-
-            {/* Hidden ISBN field for form submission */}
-            <FormField
-              control={form.control}
-              name="isbn"
-              rules={{
-                required: 'Please select a book from the search results'
-              }}
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormControl>
-                    <Input {...field} type="hidden" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {loading && <Skeleton className="h-32 w-full" />}
-
-            {bookData && !loading && (
-              <Card className="p-4 bg-muted/50">
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-lg">{bookData.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    by {bookData.authors.join(', ')}
+                  <p className="text-xs text-muted-foreground">
+                    Type at least 2 characters to search
                   </p>
-                  <p className="text-sm text-muted-foreground">{bookData.publisher}</p>
-                  <div className="pt-2">
-                    <Badge variant={getStockBadgeVariant(bookData.quantity_available)}>
-                      {bookData.quantity_available > 0
-                        ? `${bookData.quantity_available} ${bookData.quantity_available === 1 ? 'copy' : 'copies'} available`
-                        : 'Out of stock'}
-                    </Badge>
-                  </div>
                 </div>
-              </Card>
+
+                {loading && <Skeleton className="h-32 w-full" />}
+
+                {bookData && !loading && (
+                  <Card className="p-4 bg-muted/50">
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg">{bookData.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        by {bookData.authors.join(', ')}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{bookData.publisher}</p>
+                      <div className="pt-2">
+                        <Badge variant={getStockBadgeVariant(bookData.quantity_available)}>
+                          {bookData.quantity_available > 0
+                            ? `${bookData.quantity_available} ${bookData.quantity_available === 1 ? 'copy' : 'copies'} available`
+                            : 'Out of stock'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="manual" className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="isbn"
+                  rules={{
+                    required: inputMode === 'manual' ? 'ISBN is required' : false,
+                    pattern: inputMode === 'manual' ? {
+                      value: /^(?:\d{10}|\d{13})$/,
+                      message: 'ISBN must be 10 or 13 digits'
+                    } : undefined
+                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ISBN Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter 10 or 13 digit ISBN..."
+                          maxLength={13}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-xs text-muted-foreground">
+                        Enter the ISBN for a book not yet in our system
+                      </p>
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+            </Tabs>
+
+            {/* Hidden ISBN field for search mode */}
+            {inputMode === 'search' && (
+              <FormField
+                control={form.control}
+                name="isbn"
+                rules={{
+                  required: 'Please select a book from the search results'
+                }}
+                render={({ field }) => (
+                  <FormItem className="hidden">
+                    <FormControl>
+                      <Input {...field} type="hidden" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
 
             <FormField
@@ -324,7 +380,11 @@ export function RequestForm() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={!bookData}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={inputMode === 'search' && !bookData}
+            >
               Submit Request
             </Button>
           </form>
