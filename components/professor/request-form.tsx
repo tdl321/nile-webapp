@@ -25,6 +25,8 @@ export function RequestForm() {
   const form = useForm({
     defaultValues: {
       isbn: '',
+      course_code: '',
+      course_name: '',
       quantity: 1
     }
   })
@@ -59,6 +61,8 @@ export function RequestForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           isbn: data.isbn,
+          course_code: data.course_code,
+          course_name: data.course_name,
           quantity_requested: data.quantity
         })
       })
@@ -135,6 +139,43 @@ export function RequestForm() {
                 </div>
               </Card>
             )}
+
+            <FormField
+              control={form.control}
+              name="course_code"
+              rules={{
+                required: 'Course code is required'
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Course Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="COSC 111"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="course_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Course Name (optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Introduction to Computer Science"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

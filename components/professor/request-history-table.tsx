@@ -15,6 +15,8 @@ interface Request {
   status: 'pending' | 'approved' | 'rejected' | 'partial'
   requested_at: string
   processed_at?: string
+  course_code?: string
+  course_name?: string
 }
 
 export function RequestHistoryTable() {
@@ -89,6 +91,7 @@ export function RequestHistoryTable() {
               <TableRow>
                 <TableHead>ISBN</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>Course</TableHead>
                 <TableHead className="text-center">Qty</TableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-right">Date</TableHead>
@@ -101,6 +104,18 @@ export function RequestHistoryTable() {
                     {request.isbn.substring(0, 13)}...
                   </TableCell>
                   <TableCell className="font-medium">{request.book_title}</TableCell>
+                  <TableCell className="text-sm">
+                    {request.course_code ? (
+                      <div>
+                        <div className="font-medium">{request.course_code}</div>
+                        {request.course_name && (
+                          <div className="text-muted-foreground text-xs">{request.course_name}</div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-center">
                     {request.status === 'partial' && request.quantity_approved
                       ? `${request.quantity_approved}/${request.quantity_requested}`

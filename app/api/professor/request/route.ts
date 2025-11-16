@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { isbn, quantity_requested } = body
+    const { isbn, quantity_requested, course_code, course_name } = body
 
     // Validate input
     if (!isbn || !quantity_requested || quantity_requested < 1) {
@@ -49,6 +49,8 @@ export async function POST(request: NextRequest) {
         professor_email: user.email,
         isbn: isbn,
         quantity_requested: quantity_requested,
+        course_code: course_code || null,
+        course_name: course_name || null,
         status: 'pending'
       })
       .select()

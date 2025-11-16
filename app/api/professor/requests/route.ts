@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
         rejection_reason,
         requested_at,
         processed_at,
+        course_code,
+        course_name,
         books (
           title,
           authors,
@@ -56,7 +58,9 @@ export async function GET(request: NextRequest) {
       status: req.status,
       rejection_reason: req.rejection_reason,
       requested_at: req.requested_at,
-      processed_at: req.processed_at
+      processed_at: req.processed_at,
+      course_code: req.course_code,
+      course_name: req.course_name
     }))
 
     return NextResponse.json(formattedRequests)

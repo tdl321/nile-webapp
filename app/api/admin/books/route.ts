@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     // Fetch all pending requests
     const { data: requests, error: requestsError } = await supabase
       .from('professor_requests')
-      .select('id, professor_email, isbn, quantity_requested, requested_at')
+      .select('id, professor_email, isbn, quantity_requested, requested_at, course_code, course_name')
       .eq('status', 'pending')
 
     if (requestsError) {

@@ -11,6 +11,8 @@ interface ProfessorRequest {
   professor_email: string
   quantity_requested: number
   requested_at: string
+  course_code?: string
+  course_name?: string
 }
 
 interface Book {
@@ -119,6 +121,11 @@ export function InventoryTable({ books, onRefresh }: InventoryTableProps) {
                         >
                           <div className="space-y-1">
                             <p className="text-sm font-medium">{request.professor_email}</p>
+                            {request.course_code && (
+                              <p className="text-sm text-muted-foreground">
+                                Course: {request.course_code}{request.course_name && ` - ${request.course_name}`}
+                              </p>
+                            )}
                             <p className="text-xs text-muted-foreground">
                               {request.quantity_requested} {request.quantity_requested === 1 ? 'copy' : 'copies'} requested on{' '}
                               {new Date(request.requested_at).toLocaleDateString()}
