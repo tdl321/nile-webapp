@@ -1,0 +1,38 @@
+'use client'
+
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
+import { RequestForm } from '@/components/professor/request-form'
+import { RequestHistoryTable } from '@/components/professor/request-history-table'
+
+export default function ProfessorRequestPage() {
+  const { user, signOut } = useAuth()
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Nile Book Request</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-sm">
+              <span className="text-muted-foreground">Logged in as: </span>
+              <span className="font-medium">{user?.email}</span>
+            </div>
+            <Button onClick={signOut} variant="outline" size="sm">
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto py-8 px-4 max-w-4xl">
+        <div className="space-y-8">
+          <RequestForm />
+          <RequestHistoryTable />
+        </div>
+      </main>
+    </div>
+  )
+}
