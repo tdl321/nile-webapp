@@ -36,11 +36,12 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect all routes except login and auth callback
+  // Protect all routes except login, auth callback, and public API routes
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !request.nextUrl.pathname.startsWith('/auth') &&
+    !request.nextUrl.pathname.startsWith('/api/scan') // Allow public scanner API access
   ) {
     // User is not authenticated, redirect to login
     const url = request.nextUrl.clone()
