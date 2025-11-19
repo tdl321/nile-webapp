@@ -49,6 +49,12 @@
   --color-info-foreground: var(--info-foreground);
   --color-info: var(--info);
   --color-destructive-foreground: var(--destructive-foreground);
+  
+  /* Retro Shadows */
+  --shadow-retro: 4px 4px 0px 0px var(--foreground);
+  --shadow-retro-sm: 2px 2px 0px 0px var(--foreground);
+  --shadow-retro-lg: 8px 8px 0px 0px var(--foreground);
+
   @keyframes skeleton {
   to {
     background-position: -200% 0;
@@ -57,146 +63,128 @@
 }
 
 :root {
-  /* Brand Colors - Nile Palette */
-  /* #D6A99D (Dusty Rose), #FBF3D5 (Cream), #D6DAC8 (Sage), #9CAFAA (Muted Teal) */
-
-  --radius: 0.625rem;
+  /* Retro Library Palette */
+  
+  --radius: 0rem; /* No rounded corners for retro feel */
 
   /* Background & Foreground */
-  --background: oklch(0.96 0.03 85);              /* Cream background */
-  --foreground: oklch(0.25 0.01 25);              /* Dark brown text */
+  --background: #F2E8CF;              /* Beige/Cream */
+  --foreground: #1A1A1A;              /* Black/Dark Brown */
 
-  /* Primary (Dusty Rose) */
-  --primary: oklch(0.75 0.05 25);                 /* Dusty Rose */
-  --primary-foreground: oklch(0.98 0 0);          /* White text on primary */
+  /* Primary (Vintage Red/Rust) */
+  --primary: #BC4749;                 /* Vintage Red */
+  --primary-foreground: #F2E8CF;      /* Light text on primary */
 
-  /* Secondary (Sage) */
-  --secondary: oklch(0.86 0.02 110);              /* Sage */
-  --secondary-foreground: oklch(0.25 0.01 25);    /* Dark text on secondary */
+  /* Secondary (Sage/Green) */
+  --secondary: #A7C957;               /* Retro Green */
+  --secondary-foreground: #1A1A1A;    /* Dark text on secondary */
 
-  /* Cards (Light Cream) */
-  --card: oklch(0.98 0.02 85);                    /* Lighter cream */
-  --card-foreground: oklch(0.25 0.01 25);         /* Dark text on cards */
+  /* Cards (Same as bg or slightly lighter) */
+  --card: #F2E8CF;                    /* Beige */
+  --card-foreground: #1A1A1A;         /* Dark text */
 
   /* Popovers */
-  --popover: oklch(0.98 0.02 85);                 /* Light cream */
-  --popover-foreground: oklch(0.25 0.01 25);      /* Dark text */
+  --popover: #F2E8CF;                 /* Beige */
+  --popover-foreground: #1A1A1A;      /* Dark text */
 
-  /* Muted (Sage tint) */
-  --muted: oklch(0.92 0.015 110);                 /* Light sage */
-  --muted-foreground: oklch(0.45 0.01 25);        /* Medium brown text */
+  /* Muted */
+  --muted: #E0D8C0;                   /* Darker Beige */
+  --muted-foreground: #666666;        /* Grey text */
 
-  /* Accent (Muted Teal) */
-  --accent: oklch(0.72 0.04 180);                 /* Muted Teal */
-  --accent-foreground: oklch(0.98 0 0);           /* White text on accent */
+  /* Accent (Orange) */
+  --accent: #F4A261;                  /* Retro Orange */
+  --accent-foreground: #1A1A1A;      /* Dark text */
 
   /* Borders & Inputs */
-  --border: oklch(0.88 0.02 110);                 /* Sage border */
-  --input: oklch(0.88 0.02 110);                  /* Sage input border */
-  --ring: oklch(0.75 0.05 25);                    /* Dusty Rose focus ring */
+  --border: #1A1A1A;                  /* Black borders */
+  --input: #1A1A1A;                   /* Black input borders */
+  --ring: #BC4749;                    /* Red focus ring */
 
-  /* Status Colors (desaturated for softer appearance) */
-  --destructive: oklch(0.55 0.08 27);             /* Desaturated red */
-  --destructive-foreground: oklch(0.98 0 0);      /* White text */
+  /* Status Colors */
+  --destructive: #BC4749;             /* Red */
+  --destructive-foreground: #F2E8CF;  /* Light text */
 
-  /* Info (Brand Teal) */
-  --info: oklch(0.72 0.04 180);                   /* Muted Teal */
-  --info-foreground: oklch(0.98 0 0);
+  --info: #386641;                    /* Dark Green */
+  --info-foreground: #F2E8CF;
 
-  /* Success (Desaturated green to match red) */
-  --success: oklch(0.65 0.08 145);                /* Desaturated green */
-  --success-foreground: oklch(0.98 0 0);
+  --success: #6A994E;                 /* Green */
+  --success-foreground: #F2E8CF;
 
-  /* Warning (Cream-tinted amber) */
-  --warning: oklch(0.75 0.15 75);                 /* Warm amber */
-  --warning-foreground: oklch(0.25 0.01 25);
+  --warning: #E9C46A;                 /* Yellow/Gold */
+  --warning-foreground: #1A1A1A;
 
-  /* Charts (Brand-coordinated) */
-  --chart-1: oklch(0.75 0.05 25);                 /* Dusty Rose */
-  --chart-2: oklch(0.72 0.04 180);                /* Muted Teal */
-  --chart-3: oklch(0.86 0.02 110);                /* Sage */
-  --chart-4: oklch(0.65 0.12 165);                /* Teal green */
-  --chart-5: oklch(0.75 0.15 75);                 /* Warm amber */
+  /* Charts */
+  --chart-1: #BC4749;
+  --chart-2: #F4A261;
+  --chart-3: #E9C46A;
+  --chart-4: #2A9D8F;
+  --chart-5: #264653;
 
   /* Sidebar */
-  --sidebar: oklch(0.98 0.02 85);                 /* Light cream */
-  --sidebar-foreground: oklch(0.25 0.01 25);      /* Dark text */
-  --sidebar-primary: oklch(0.75 0.05 25);         /* Dusty Rose */
-  --sidebar-primary-foreground: oklch(0.98 0 0);  /* White */
-  --sidebar-accent: oklch(0.72 0.04 180);         /* Muted Teal */
-  --sidebar-accent-foreground: oklch(0.25 0.01 25); /* Dark text */
-  --sidebar-border: oklch(0.88 0.02 110);         /* Sage */
-  --sidebar-ring: oklch(0.75 0.05 25);            /* Dusty Rose */
+  --sidebar: #F2E8CF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #BC4749;
+  --sidebar-primary-foreground: #F2E8CF;
+  --sidebar-accent: #F4A261;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #1A1A1A;
+  --sidebar-ring: #BC4749;
 }
 
 .dark {
-  /* Dark Mode - Brand-coordinated with Nile Palette */
+  /* Dark Mode - Inverted Retro */
+  
+  --background: #1A1A1A;
+  --foreground: #F2E8CF;
 
-  /* Background & Foreground */
-  --background: oklch(0.18 0.015 25);             /* Dark brown background */
-  --foreground: oklch(0.96 0.02 85);              /* Light cream text */
+  --primary: #BC4749;
+  --primary-foreground: #F2E8CF;
 
-  /* Primary (Lighter Dusty Rose for contrast) */
-  --primary: oklch(0.80 0.06 25);                 /* Lighter Dusty Rose */
-  --primary-foreground: oklch(0.18 0.015 25);     /* Dark text on primary */
+  --secondary: #386641;
+  --secondary-foreground: #F2E8CF;
 
-  /* Secondary (Darker Sage) */
-  --secondary: oklch(0.35 0.02 110);              /* Dark sage */
-  --secondary-foreground: oklch(0.96 0.02 85);    /* Light text on secondary */
+  --card: #1A1A1A;
+  --card-foreground: #F2E8CF;
 
-  /* Cards (Dark cream-tinted) */
-  --card: oklch(0.22 0.015 25);                   /* Dark card background */
-  --card-foreground: oklch(0.96 0.02 85);         /* Light text on cards */
+  --popover: #1A1A1A;
+  --popover-foreground: #F2E8CF;
 
-  /* Popovers */
-  --popover: oklch(0.22 0.015 25);                /* Dark card */
-  --popover-foreground: oklch(0.96 0.02 85);      /* Light text */
+  --muted: #2C2C2C;
+  --muted-foreground: #A0A0A0;
 
-  /* Muted (Dark sage) */
-  --muted: oklch(0.28 0.015 110);                 /* Dark sage muted */
-  --muted-foreground: oklch(0.70 0.02 85);        /* Medium light text */
+  --accent: #F4A261;
+  --accent-foreground: #1A1A1A;
 
-  /* Accent (Muted Teal adjusted for dark) */
-  --accent: oklch(0.65 0.05 180);                 /* Darker teal */
-  --accent-foreground: oklch(0.96 0.02 85);       /* Light text on accent */
+  --border: #F2E8CF;
+  --input: #F2E8CF;
+  --ring: #BC4749;
 
-  /* Borders & Inputs (with opacity for subtle borders) */
-  --border: oklch(1 0 0 / 12%);                   /* Light semi-transparent border */
-  --input: oklch(1 0 0 / 18%);                    /* Light semi-transparent input */
-  --ring: oklch(0.80 0.06 25);                    /* Lighter Dusty Rose focus ring */
+  --destructive: #BC4749;
+  --destructive-foreground: #F2E8CF;
 
-  /* Status Colors (desaturated for dark mode) */
-  --destructive: oklch(0.60 0.08 27);             /* Desaturated red */
-  --destructive-foreground: oklch(0.96 0.02 85);  /* Light text */
+  --info: #A7C957;
+  --info-foreground: #1A1A1A;
 
-  /* Info (Brand Teal for dark) */
-  --info: oklch(0.72 0.04 180);                   /* Muted Teal */
-  --info-foreground: oklch(0.96 0.02 85);
+  --success: #6A994E;
+  --success-foreground: #1A1A1A;
 
-  /* Success (Desaturated green for dark) */
-  --success: oklch(0.70 0.08 145);                /* Desaturated green */
-  --success-foreground: oklch(0.96 0.02 85);
+  --warning: #E9C46A;
+  --warning-foreground: #1A1A1A;
 
-  /* Warning (Warm amber for dark) */
-  --warning: oklch(0.75 0.15 75);                 /* Warm amber */
-  --warning-foreground: oklch(0.96 0.02 85);
+  --chart-1: #BC4749;
+  --chart-2: #F4A261;
+  --chart-3: #E9C46A;
+  --chart-4: #2A9D8F;
+  --chart-5: #264653;
 
-  /* Charts (same as light mode for consistency) */
-  --chart-1: oklch(0.80 0.06 25);                 /* Light Dusty Rose */
-  --chart-2: oklch(0.72 0.04 180);                /* Muted Teal */
-  --chart-3: oklch(0.65 0.05 110);                /* Medium Sage */
-  --chart-4: oklch(0.70 0.12 165);                /* Teal green */
-  --chart-5: oklch(0.75 0.15 75);                 /* Warm amber */
-
-  /* Sidebar (dark mode) */
-  --sidebar: oklch(0.22 0.015 25);                /* Dark background */
-  --sidebar-foreground: oklch(0.96 0.02 85);      /* Light text */
-  --sidebar-primary: oklch(0.80 0.06 25);         /* Light Dusty Rose */
-  --sidebar-primary-foreground: oklch(0.18 0.015 25); /* Dark text */
-  --sidebar-accent: oklch(0.65 0.05 180);         /* Dark Teal */
-  --sidebar-accent-foreground: oklch(0.96 0.02 85); /* Light text */
-  --sidebar-border: oklch(1 0 0 / 12%);           /* Light border */
-  --sidebar-ring: oklch(0.80 0.06 25);            /* Light Dusty Rose ring */
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #F2E8CF;
+  --sidebar-primary: #BC4749;
+  --sidebar-primary-foreground: #F2E8CF;
+  --sidebar-accent: #F4A261;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #F2E8CF;
+  --sidebar-ring: #BC4749;
 }
 
 @layer base {
@@ -204,6 +192,16 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-mono;
   }
+}
+
+@utility shadow-retro {
+  box-shadow: var(--shadow-retro);
+}
+@utility shadow-retro-sm {
+  box-shadow: var(--shadow-retro-sm);
+}
+@utility shadow-retro-lg {
+  box-shadow: var(--shadow-retro-lg);
 }
